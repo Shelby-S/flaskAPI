@@ -8,7 +8,7 @@ app = Flask(__name__)
 api = Api(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
-t
+
 # This is setting up the model representing the table in the database 
 class GameModel(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
