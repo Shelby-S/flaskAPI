@@ -17,7 +17,7 @@ class GameModel(db.Model):
 	likes = db.Column(db.Integer, nullable=False)
 
 	def __repr__(self):
-		return f"Games(name = {name}, views = {users}, likes = {likes})"
+		return f"Games(name = {name}, users = {users}, likes = {likes})"
 
 # Setting up the fields needed for the put API call 
 game_put_args = reqparse.RequestParser()
@@ -56,7 +56,7 @@ class Game(Resource):
 		if result:
 			abort(409, message="Game id taken...")
 		# Create the database entry 
-		game = GameModel(id=game_id, name=args['name'], views=args['users'], likes=args['likes'])
+		game = GameModel(id=game_id, name=args['name'], users=args['users'], likes=args['likes'])
 		# Commit to the database 
 		db.session.add(game)
 		db.session.commit()
@@ -73,7 +73,7 @@ class Game(Resource):
 		if args['name']:
 			result.name = args['name']
 		if args['users']:
-			result.views = args['users']
+			result.users = args['users']
 		if args['likes']:
 			result.likes = args['likes']
 
@@ -84,8 +84,13 @@ class Game(Resource):
 
 
 	def delete(self, game_id):
-		abort_if_game_id_doesnt_exist(game_id)
-		del game[game_id]
+		# Checking to ensure that game is in the database 
+		result = GameModel.query.filter_by(id=game_id).first()
+		if not result:
+			abort(404, message="Game doesn't exist")
+
+		db.session.delete(result)
+		db.session.commit()
 		return '', 204
 
 # Getting the game id 
